@@ -53,6 +53,7 @@ impl<'a> Lexer<'a> {
                     Token::Bang
                 }
             }
+            b'*' => Token::Asterisk,
             b'/' => Token::Slash,
             b'<' => Token::LessThan,
             b'>' => Token::GreaterThan,
