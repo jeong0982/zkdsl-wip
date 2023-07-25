@@ -1,10 +1,10 @@
-extern crate zkdsl;
 extern crate rustyline;
+extern crate zkdsl;
 
-use zkdsl::lexer::lexer::Lexer;
-use zkdsl::token::token::Token;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
+use zkdsl::lexer::lexer::Lexer;
+use zkdsl::token::token::Token;
 
 fn main() {
     let mut rl = Editor::<()>::new();
@@ -37,5 +37,4 @@ fn main() {
             }
         }
     }
-
 }
