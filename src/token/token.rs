@@ -35,4 +35,5 @@ pub enum Token {
     If,
     Else,
     Return,
+    Assert,
 }

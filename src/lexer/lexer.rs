@@ -123,6 +123,7 @@ impl<'a> Lexer<'a> {
             "if" => Token::If,
             "else" => Token::Else,
             "return" => Token::Return,
+            "assert" => Token::Assert,
             _ => Token::Ident(String::from(literal)),
         }
     }

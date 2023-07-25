@@ -137,6 +137,7 @@ impl<'a> Parser<'a> {
             Token::Let => self.parse_let_statement(),
             Token::Return => self.parse_return_statement(),
             Token::If => self.parse_if_statement(),
+            Token::Assert => self.parse_assert_statement(),
             _ => self.parse_expression_statement(),
         }
     }
@@ -233,6 +234,21 @@ impl<'a> Parser<'a> {
             Block(if_block),
             Block(else_block),
         ))
+    }
+
+    fn parse_assert_statement(&mut self) -> Option<Statement> {
+        self.next_token();
+
+        let expression = match self.parse_expression(Precedence::Lowest) {
+            Some(expression) => expression,
+            None => return None,
+        };
+
+        while !self.cur_token_is(Token::Semicolon) {
+            self.next_token();
+        }
+
+        Some(Statement::Assert(expression))
     }
 
     fn parse_expression_statement(&mut self) -> Option<Statement> {

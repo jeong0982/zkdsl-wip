@@ -6,6 +6,7 @@ pub enum Statement {
     Let(Identifier, Expression),
     Return(Expression),
     Ifelse(Expression, Block, Block),
+    Assert(Expression),
     Expression(Expression),
 }
 
