@@ -21,13 +21,13 @@ pub enum Expression {
     UnaryOperation(UnaryOperator, Box<Expression>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum UnaryOperator {
     Minus,
     Not,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BinaryOperator {
     Plus,
     Minus,
