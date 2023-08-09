@@ -1,15 +1,16 @@
-use thiserror::Error;
+use crate::{
+    ast::ast,
+    ir::{Block, BlockExit, Instruction, Program},
+};
 use num_bigint::BigInt;
-use crate::{ir::{Instruction, Block, Program}, ast::ast};
+use thiserror::Error;
 
 use super::ir;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Value {
     Unit,
-    Num {
-        value: BigInt,
-    }
+    Num { value: BigInt },
 }
 
 #[derive(Debug, PartialEq, Eq, Error)]
@@ -53,17 +54,13 @@ impl VM {
     }
 
     fn execute_nop(&mut self) -> Value {
-       Value::Unit
+        Value::Unit
     }
 
     fn execute_binop(&mut self, op: &ast::BinaryOperator) -> Value {
         let result = match op {
-            ast::BinaryOperator::Plus => {
-                Value::Unit
-            },
-            ast::BinaryOperator::Multiply => {
-                Value::Unit
-            },
+            ast::BinaryOperator::Plus => Value::Unit,
+            ast::BinaryOperator::Multiply => Value::Unit,
             _ => Value::Unit,
         };
         result
@@ -71,9 +68,7 @@ impl VM {
 
     fn execute_unop(&mut self, op: &ast::UnaryOperator) -> Value {
         let result = match op {
-            ast::UnaryOperator::Minus => {
-                Value::Unit
-            },
+            ast::UnaryOperator::Minus => Value::Unit,
             _ => Value::Unit,
         };
         result
@@ -84,14 +79,28 @@ impl VM {
             Instruction::Nop => self.execute_nop(),
             Instruction::BinOp { op } => self.execute_binop(op),
             Instruction::UnaryOp { op } => self.execute_unop(op),
-            _ => todo!()
+            _ => todo!(),
         };
         self.ip += 1;
-        Ok(ExecStep { ip: self.ip, op: instruction.clone() })
+        Ok(ExecStep {
+            ip: self.ip,
+            op: instruction.clone(),
+        })
+    }
+
+    fn execute_blockexit(&mut self, exit: &BlockExit) -> Result<ExecStep, VMError> {
+        todo!();
     }
 
     fn execute_block(&mut self, block: &Block) -> Result<ExecTrace, VMError> {
         let mut log = vec![];
+        for instr in block.instructions.iter() {
+            let result = self.execute_instruction(instr)?;
+            log.push(result);
+        }
+        let exit = self.execute_blockexit(&block.exit)?;
+        log.push(exit);
+        Ok(ExecTrace { log })
     }
 
     pub fn execute(&mut self) -> Result<ExecTrace, VMError> {
@@ -111,7 +120,6 @@ impl VM {
 
 pub struct State {
     pub ip: Value,
-
 }
 
 #[derive(Clone, Debug)]

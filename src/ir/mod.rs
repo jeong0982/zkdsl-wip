@@ -12,7 +12,6 @@ pub enum Instruction {
         op: ast::UnaryOperator,
         // type: Type,
     },
-
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -24,9 +23,7 @@ pub enum Operand {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Constant {
     Unit,
-    Num {
-        value: BigInt,
-    }
+    Num { value: BigInt },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
