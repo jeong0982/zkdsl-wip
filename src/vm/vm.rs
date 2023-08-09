@@ -1,6 +1,6 @@
 use thiserror::Error;
 use num_bigint::BigInt;
-use crate::{ir::{Instruction, Operand}, ast::ast};
+use crate::{ir::{Instruction, Block, Program}, ast::ast};
 
 use super::ir;
 
@@ -21,7 +21,7 @@ pub enum VMError {
 pub struct VM {
     // instruction pointer
     pub ip: usize,
-    pub instructions: Vec<ir::Instruction>,
+    pub program: Program,
     pub data: Vec<Value>,
     pub address: Vec<Value>,
 }
@@ -90,14 +90,18 @@ impl VM {
         Ok(ExecStep { ip: self.ip, op: instruction.clone() })
     }
 
-    pub fn execute(&mut self) -> Result<ExecTrace, VMError> {
+    fn execute_block(&mut self, block: &Block) -> Result<ExecTrace, VMError> {
         let mut log = vec![];
-        let instructions = self.instructions.clone();
-        for instr in instructions.iter() {
-            let result = self.execute_instruction(instr)?;
-            log.push(result);
+    }
+
+    pub fn execute(&mut self) -> Result<ExecTrace, VMError> {
+        let mut trace = ExecTrace::new();
+        let program = self.program.clone();
+        for block in program.blocks.iter() {
+            let mut result = self.execute_block(block)?;
+            trace.concat_trace(&mut result);
         }
-        Ok(ExecTrace { log })
+        Ok(trace)
     }
 
     pub fn evaluate(&mut self) {
@@ -113,6 +117,17 @@ pub struct State {
 #[derive(Clone, Debug)]
 pub struct ExecTrace {
     pub log: Vec<ExecStep>,
+}
+
+impl ExecTrace {
+    pub fn new() -> ExecTrace {
+        ExecTrace { log: vec![] }
+    }
+
+    /// log in `other` will be empty
+    fn concat_trace(&mut self, other: &mut ExecTrace) {
+        self.log.append(&mut other.log);
+    }
 }
 
 #[derive(Clone, Debug)]

@@ -56,3 +56,10 @@ pub struct JumpArg {
     pub args: Vec<Operand>,
 }
 
+// TODO: if function declaration is added, Program should have decls
+#[derive(Debug, Clone)]
+pub struct Program {
+    /// Blocks
+    /// Can be changed to BTreeMap<BlockId, Block>
+    pub blocks: Vec<Block>,
+}
