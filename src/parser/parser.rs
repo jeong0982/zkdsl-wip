@@ -311,14 +311,14 @@ impl<'a> Parser<'a> {
 
     fn parse_int_expression(&mut self) -> Option<Expression> {
         match &self.cur_token {
-            Token::Int(int) => Some(Expression::Literal(Literal::Int(int.clone()))),
+            Token::Int(int) => Some(Expression::Literal(Literal::Int(*int))),
             _ => None,
         }
     }
 
     fn parse_bool_expression(&mut self) -> Option<Expression> {
         match self.cur_token {
-            Token::Bool(value) => Some(Expression::Literal(Literal::Bool(value == true))),
+            Token::Bool(value) => Some(Expression::Literal(Literal::Bool(value))),
             _ => None,
         }
     }
@@ -380,7 +380,7 @@ impl<'a> Parser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::ast::ast::{Expression, Identifier, Literal, Statement, BinaryOperator, Block};
+    use crate::ast::ast::{BinaryOperator, Block, Expression, Identifier, Literal, Statement};
     use crate::lexer::lexer::Lexer;
     use crate::parser::parser::Parser;
 
@@ -423,18 +423,33 @@ mod tests {
         check_parse_errors(&mut p);
         assert_eq!(
             vec![
-                Statement::Let(Identifier(String::from("x")), Expression::Literal(Literal::Int(5))),
+                Statement::Let(
+                    Identifier(String::from("x")),
+                    Expression::Literal(Literal::Int(5))
+                ),
                 Statement::Ifelse(
-                    Expression::BinaryOperation(BinaryOperator::Equal, Box::new(Expression::Identifier(Identifier(String::from("x")))), Box::new(Expression::Literal(Literal::Int(5)))),
+                    Expression::BinaryOperation(
+                        BinaryOperator::Equal,
+                        Box::new(Expression::Identifier(Identifier(String::from("x")))),
+                        Box::new(Expression::Literal(Literal::Int(5)))
+                    ),
                     Block(vec![
                         Statement::Ifelse(
-                            Expression::BinaryOperation(BinaryOperator::Equal, Box::new(Expression::Identifier(Identifier(String::from("x")))), Box::new(Expression::Literal(Literal::Int(2)))),
-                            Block(vec![Statement::Return(Expression::Literal(Literal::Int(0)))]),
+                            Expression::BinaryOperation(
+                                BinaryOperator::Equal,
+                                Box::new(Expression::Identifier(Identifier(String::from("x")))),
+                                Box::new(Expression::Literal(Literal::Int(2)))
+                            ),
+                            Block(vec![Statement::Return(Expression::Literal(Literal::Int(
+                                0
+                            )))]),
                             Block(vec![])
                         ),
                         Statement::Return(Expression::Literal(Literal::Int(1)))
                     ]),
-                    Block(vec![Statement::Return(Expression::Literal(Literal::Int(2)))])
+                    Block(vec![Statement::Return(Expression::Literal(Literal::Int(
+                        2
+                    )))])
                 )
             ],
             program
