@@ -3,6 +3,7 @@ use crate::{
     ir::{Block, BlockExit, Instruction, Program},
 };
 use num_bigint::BigInt;
+use num_traits::cast::ToPrimitive;
 use thiserror::Error;
 
 use super::ir;
@@ -19,6 +20,10 @@ impl Value {
             Value::Unit => Err(VMError::VoidValue),
             Value::Num { value } => Ok(value),
         }
+    }
+
+    pub fn is_true(self) -> Result<bool, VMError> {
+        todo!();
     }
 }
 
@@ -117,12 +122,35 @@ impl VM {
         self.ip += 1;
         Ok(ExecStep {
             ip: self.ip,
-            op: instruction.clone(),
+            op: StepFunction::from(instruction.clone()),
         })
     }
 
     fn execute_blockexit(&mut self, exit: &BlockExit) -> Result<ExecStep, VMError> {
-        todo!();
+        match exit {
+            BlockExit::Jump => {
+                self.ip = self
+                    .pop_data()?
+                    .get_num()?
+                    .to_usize()
+                    .ok_or(VMError::VoidValue)?;
+            }
+            BlockExit::ConditionalJump => {
+                let condition = self.pop_data()?.is_true()?;
+                let ip_then = self.pop_data()?;
+                let ip_else = self.pop_data()?;
+                if condition {
+                    self.ip = ip_then.get_num()?.to_usize().ok_or(VMError::VoidValue)?;
+                } else {
+                    self.ip = ip_else.get_num()?.to_usize().ok_or(VMError::VoidValue)?;
+                }
+            }
+            _ => todo!(),
+        };
+        Ok(ExecStep {
+            ip: self.ip,
+            op: StepFunction::from(*exit),
+        })
     }
 
     fn execute_block(&mut self, block: &Block) -> Result<ExecTrace, VMError> {
@@ -180,5 +208,23 @@ impl ExecTrace {
 #[derive(Clone, Debug)]
 pub struct ExecStep {
     pub ip: usize,
-    pub op: ir::Instruction,
+    pub op: StepFunction,
+}
+
+#[derive(Clone, Debug)]
+pub enum StepFunction {
+    Instruction { instr: ir::Instruction },
+    Exit { exit: ir::BlockExit },
+}
+
+impl From<ir::Instruction> for StepFunction {
+    fn from(instr: ir::Instruction) -> Self {
+        StepFunction::Instruction { instr }
+    }
+}
+
+impl From<ir::BlockExit> for StepFunction {
+    fn from(exit: ir::BlockExit) -> Self {
+        StepFunction::Exit { exit }
+    }
 }

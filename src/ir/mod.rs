@@ -14,6 +14,9 @@ pub enum Instruction {
     },
     Swap,
     Dup,
+    // If there is a memory,
+    // Load,
+    // Store,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -34,26 +37,18 @@ pub struct Block {
     pub exit: BlockExit,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum BlockExit {
-    Jump {
-        arg: JumpArg,
-    },
-    ConditionalJump {
-        condition: Operand,
-        arg_then: JumpArg,
-        arg_else: JumpArg,
-    },
-    Return {
-        value: Operand,
-    },
+    Jump,
+    ConditionalJump,
+    Return,
     Unreachable,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct JumpArg {
-    pub args: Vec<Operand>,
-}
+// #[derive(Debug, Clone, PartialEq, Eq)]
+// pub struct JumpArg {
+//     pub args: Vec<Operand>,
+// }
 
 // TODO: if function declaration is added, Program should have decls
 #[derive(Debug, Clone)]

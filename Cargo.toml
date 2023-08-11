@@ -9,6 +9,7 @@ edition = "2021"
 rustyline = { version = "9.1.2", optional = true }
 thiserror = "1.0.38"
 num-bigint = "0.4"
+num-traits = "0.2.16"
 
 [[bin]]
 name = "zkdsl"
