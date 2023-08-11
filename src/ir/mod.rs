@@ -12,6 +12,8 @@ pub enum Instruction {
         op: ast::UnaryOperator,
         // type: Type,
     },
+    Swap,
+    Dup,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

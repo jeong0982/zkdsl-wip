@@ -13,10 +13,21 @@ pub enum Value {
     Num { value: BigInt },
 }
 
+impl Value {
+    pub fn get_num(self) -> Result<BigInt, VMError> {
+        match self {
+            Value::Unit => Err(VMError::VoidValue),
+            Value::Num { value } => Ok(value),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Error)]
 pub enum VMError {
     #[error("stack underflow")]
     StackUnderflow,
+    #[error("Unit to Num")]
+    VoidValue,
 }
 
 pub struct VM {
@@ -53,32 +64,54 @@ impl VM {
         self.address.push(value);
     }
 
-    fn execute_nop(&mut self) -> Value {
-        Value::Unit
+    fn execute_nop(&mut self) {
+        ()
     }
 
-    fn execute_binop(&mut self, op: &ast::BinaryOperator) -> Value {
+    fn execute_swap(&mut self) -> Result<(), VMError> {
+        let a = self.pop_data()?;
+        let b = self.pop_data()?;
+        self.push_data(a);
+        self.push_data(b);
+        Ok(())
+    }
+
+    fn execute_binop(&mut self, op: &ast::BinaryOperator) -> Result<Value, VMError> {
+        let lhs = self.pop_data()?.get_num()?;
+        let rhs = self.pop_data()?.get_num()?;
+
         let result = match op {
-            ast::BinaryOperator::Plus => Value::Unit,
-            ast::BinaryOperator::Multiply => Value::Unit,
+            ast::BinaryOperator::Plus => Value::Num { value: lhs + rhs },
+            ast::BinaryOperator::Multiply => Value::Num { value: lhs * rhs },
             _ => Value::Unit,
         };
-        result
+        Ok(result)
     }
 
-    fn execute_unop(&mut self, op: &ast::UnaryOperator) -> Value {
+    fn execute_unop(&mut self, op: &ast::UnaryOperator) -> Result<Value, VMError> {
         let result = match op {
             ast::UnaryOperator::Minus => Value::Unit,
             _ => Value::Unit,
         };
-        result
+        Ok(result)
     }
 
     fn execute_instruction(&mut self, instruction: &Instruction) -> Result<ExecStep, VMError> {
-        let result = match instruction {
-            Instruction::Nop => self.execute_nop(),
-            Instruction::BinOp { op } => self.execute_binop(op),
-            Instruction::UnaryOp { op } => self.execute_unop(op),
+        match instruction {
+            Instruction::Nop => {
+                self.execute_nop();
+            }
+            Instruction::BinOp { op } => {
+                let result = self.execute_binop(op)?;
+                self.push_data(result);
+            }
+            Instruction::UnaryOp { op } => {
+                let result = self.execute_unop(op)?;
+                self.push_data(result);
+            }
+            Instruction::Swap => {
+                self.execute_swap()?;
+            }
             _ => todo!(),
         };
         self.ip += 1;
@@ -125,6 +158,12 @@ pub struct State {
 #[derive(Clone, Debug)]
 pub struct ExecTrace {
     pub log: Vec<ExecStep>,
+}
+
+impl Default for ExecTrace {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ExecTrace {
