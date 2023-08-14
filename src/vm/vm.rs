@@ -81,6 +81,13 @@ impl VM {
         Ok(())
     }
 
+    fn execute_dup(&mut self) -> Result<(), VMError> {
+        let data = self.pop_data()?;
+        self.push_data(data.clone());
+        self.push_data(data);
+        Ok(())
+    }
+
     fn execute_binop(&mut self, op: &ast::BinaryOperator) -> Result<Value, VMError> {
         let lhs = self.pop_data()?.get_num()?;
         let rhs = self.pop_data()?.get_num()?;
@@ -117,6 +124,9 @@ impl VM {
             Instruction::Swap => {
                 self.execute_swap()?;
             }
+            Instruction::Dup => {
+                self.execute_dup()?;
+            }
             _ => todo!(),
         };
         self.ip += 1;
@@ -144,6 +154,9 @@ impl VM {
                 } else {
                     self.ip = ip_else.get_num()?.to_usize().ok_or(VMError::VoidValue)?;
                 }
+            }
+            BlockExit::Return => {
+                
             }
             _ => todo!(),
         };

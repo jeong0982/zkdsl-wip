@@ -1,6 +1,8 @@
 use super::ast::ast;
 use num_bigint::BigInt;
 
+// https://github.com/michaeljclark/michaeljclark.github.io/blob/master/asm.md#assembler-pseudo-instructions
+// TODO: Register based ir, vm
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Instruction {
     Nop,
