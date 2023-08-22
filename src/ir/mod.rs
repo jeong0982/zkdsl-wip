@@ -17,14 +17,35 @@ pub enum Instruction {
     Swap,
     Dup,
     // If there is a memory,
-    // Load,
-    // Store,
+    Load,
+    Store,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Operand {
     Constant(Constant),
     StackValue(usize),
+    Register(Register),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
+pub enum Register {
+    Zero,
+    Ra,
+    Sp,
+    Gp,
+    Tp,
+    /// E.g., t0
+    Temp(RegisterType, usize),
+    /// E.g., s0
+    Saved(RegisterType, usize),
+    /// E.g., a0
+    Arg(RegisterType, usize),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
+pub enum RegisterType {
+    Integer,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
